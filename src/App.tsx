@@ -24,7 +24,8 @@ import {
   TrendingDown,
   AlertCircle,
   Tag,
-  Check
+  Check,
+  Download
 } from 'lucide-react';
 import {
   ShoppingItem,
@@ -38,6 +39,9 @@ import { ItemFormModal } from './components/ItemFormModal';
 import { PriceComparatorModal } from './components/PriceComparatorModal';
 import { ReceiptSummaryModal } from './components/ReceiptSummaryModal';
 import { BudgetModal } from './components/BudgetModal';
+import { PWAInstallModal } from './components/PWAInstallModal';
+import { OfflineIndicator } from './components/OfflineIndicator';
+import { usePWAInstall } from './hooks/usePWAInstall';
 import { sounds } from './utils/audioFeedback';
 
 const STORAGE_KEY = 'superlista_app_lists_v1';
@@ -68,9 +72,11 @@ export default function App() {
   const [isComparatorOpen, setIsComparatorOpen] = useState(false);
   const [isReceiptOpen, setIsReceiptOpen] = useState(false);
   const [isBudgetOpen, setIsBudgetOpen] = useState(false);
-  const [isNewListOpen, setIsNewListOpen] = useState(false);
+   const [isNewListOpen, setIsNewListOpen] = useState(false);
   const [newListName, setNewListName] = useState('');
   const [soundActive, setSoundActive] = useState(true);
+  const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
+  const { isInstallable, isInstalled, install } = usePWAInstall();
 
   // Filters & search
   const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'inCart'>('all');
@@ -336,6 +342,25 @@ export default function App() {
 
             {/* List Selector & App Controls */}
             <div className="flex items-center gap-2">
+              {/* Install PWA Button */}
+              {!isInstalled && (
+                <button
+                  onClick={() => {
+                    if (isInstallable) {
+                      install();
+                    } else {
+                      setIsInstallModalOpen(true);
+                    }
+                  }}
+                  title="Baixar aplicativo no celular ou computador"
+                  aria-label="Baixar e instalar aplicativo"
+                  className="px-2.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition active:scale-95"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Baixar App</span>
+                </button>
+              )}
+
               <button
                 onClick={() => setSoundActive(!soundActive)}
                 title={soundActive ? 'Silenciar bip do scanner' : 'Ativar som'}
@@ -354,7 +379,7 @@ export default function App() {
                     setActiveListId(e.target.value);
                   }
                 }}
-                className="bg-zinc-800 border border-zinc-700/80 rounded-xl px-2.5 py-2 text-xs font-semibold text-zinc-200 focus:outline-none focus:border-emerald-500 max-w-[140px] sm:max-w-[180px] truncate"
+                className="bg-zinc-800 border border-zinc-700/80 rounded-xl px-2.5 py-2 text-xs font-semibold text-zinc-200 focus:outline-none focus:border-emerald-500 max-w-[130px] sm:max-w-[170px] truncate"
               >
                 {lists.map((l) => (
                   <option key={l.id} value={l.id}>
@@ -809,6 +834,15 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* PWA Install Modal */}
+      <PWAInstallModal
+        isOpen={isInstallModalOpen}
+        onClose={() => setIsInstallModalOpen(false)}
+      />
+
+      {/* Connectivity Offline Indicator */}
+      <OfflineIndicator />
 
     </div>
   );

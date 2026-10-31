@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+    <linearGradient id="glowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#34d399" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#10b981" stop-opacity="0.2" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background with smooth squircle -->
+  <rect width="512" height="512" rx="128" fill="url(#bgGrad)" />
+
+  <!-- Inner subtle border -->
+  <rect x="12" y="12" width="488" height="488" rx="116" fill="none" stroke="#6ee7b7" stroke-width="4" stroke-opacity="0.3" />
+
+  <!-- Shopping Basket & Scanner Reticle Graphic -->
+  <g transform="translate(64, 64) scale(0.75)">
+    <!-- Shopping Bag Body -->
+    <path d="M96 160 C96 142 110 128 128 128 L384 128 C402 128 416 142 416 160 L448 416 C448 434 434 448 416 448 L96 448 C78 448 64 434 64 416 Z" fill="#ffffff" fill-opacity="0.15" stroke="#ffffff" stroke-width="24" stroke-linejoin="round" />
+
+    <!-- Bag Handles -->
+    <path d="M176 128 V96 C176 52 212 16 256 16 C300 16 336 52 336 96 V128" fill="none" stroke="#ffffff" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" />
+
+    <!-- Camera / Scanner Reticle Center -->
+    <circle cx="256" cy="288" r="72" fill="#ffffff" />
+    <circle cx="256" cy="288" r="48" fill="#047857" />
+    <circle cx="256" cy="288" r="20" fill="#34d399" />
+
+    <!-- Reticle Corner Brackets -->
+    <path d="M196 218 H180 V234" fill="none" stroke="#34d399" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M316 218 H332 V234" fill="none" stroke="#34d399" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M196 358 H180 V342" fill="none" stroke="#34d399" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M316 358 H332 V342" fill="none" stroke="#34d399" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" />
+
+    <!-- Horizontal Scan Laser Beam -->
+    <line x1="140" y1="288" x2="372" y2="288" stroke="#facc15" stroke-width="10" stroke-linecap="round" />
+  </g>
+</svg>
