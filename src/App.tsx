@@ -24,10 +24,7 @@ import {
   TrendingDown,
   AlertCircle,
   Tag,
-  Check,
-  Smartphone,
-  Maximize2,
-  Minimize2
+  Check
 } from 'lucide-react';
 import {
   ShoppingItem,
@@ -79,7 +76,6 @@ export default function App() {
   const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'inCart'>('all');
   const [categoryFilter, setCategoryFilter] = useState<Category>('Todos');
   const [searchQuery, setSearchQuery] = useState('');
-  const [isPhoneFrame, setIsPhoneFrame] = useState(true);
 
   // Sync to local storage
   useEffect(() => {
@@ -316,42 +312,12 @@ export default function App() {
     : 0;
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col items-center justify-center sm:py-6 px-0 sm:px-2 select-none">
+    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col select-none">
       
-      {/* Viewport Frame Container (Mobile Layout) */}
-      <div
-        className={`w-full transition-all duration-300 flex flex-col ${
-          isPhoneFrame
-            ? 'max-w-[410px] h-[844px] max-h-screen sm:rounded-[44px] sm:border-[6px] sm:border-zinc-800 sm:shadow-2xl sm:ring-1 sm:ring-zinc-700/50 bg-zinc-900 overflow-hidden'
-            : 'max-w-4xl min-h-screen bg-zinc-900 rounded-2xl border border-zinc-800'
-        }`}
-      >
-        
-        {/* Mobile Status Bar Simulation */}
-        <div className="pt-2 px-6 flex items-center justify-between text-[11px] font-semibold text-zinc-400 bg-zinc-900 sticky top-0 z-30 select-none shrink-0">
-          <span>09:41</span>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setIsPhoneFrame(!isPhoneFrame)}
-              title={isPhoneFrame ? 'Expandir Layout' : 'Modo Celular'}
-              className="text-zinc-500 hover:text-zinc-200 transition hidden sm:block"
-            >
-              {isPhoneFrame ? <Maximize2 className="w-3.5 h-3.5" /> : <Minimize2 className="w-3.5 h-3.5" />}
-            </button>
-            <button
-              onClick={() => setSoundActive(!soundActive)}
-              title={soundActive ? 'Silenciar bip do scanner' : 'Ativar som'}
-              className="text-zinc-400 hover:text-emerald-400 transition"
-              aria-label="Alternar som do supermercado"
-            >
-              {soundActive ? <Volume2 className="w-3.5 h-3.5 text-emerald-400" /> : <VolumeX className="w-3.5 h-3.5 text-zinc-600" />}
-            </button>
-            <span className="text-[10px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded-full font-bold">5G</span>
-          </div>
-        </div>
-
-        {/* Top App Header */}
-        <header className="px-5 pt-2 pb-3 bg-zinc-900 border-b border-zinc-800/80 sticky top-7 z-20 shrink-0">
+      {/* Sticky Top App Header */}
+      <header className="sticky top-0 z-30 bg-zinc-900/95 backdrop-blur-md border-b border-zinc-800 shadow-md">
+        <div className="max-w-2xl mx-auto w-full px-4 pt-3 pb-3">
+          {/* Top Bar with Brand, Sound Toggle, and Shopping List Selector */}
           <div className="flex items-center justify-between gap-3 mb-2.5">
             <div className="flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-white shadow-md shadow-emerald-500/20">
@@ -360,7 +326,7 @@ export default function App() {
               <div>
                 <h1 className="text-base font-black tracking-tight text-white flex items-center gap-1.5">
                   SuperLista
-                  <span className="text-[9px] px-1.5 py-0.2 rounded-md bg-emerald-500 text-white font-black uppercase">
+                  <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-emerald-500 text-white font-black uppercase">
                     PRO
                   </span>
                 </h1>
@@ -368,8 +334,17 @@ export default function App() {
               </div>
             </div>
 
-            {/* List Selector Dropdown */}
-            <div className="flex items-center gap-1.5">
+            {/* List Selector & App Controls */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setSoundActive(!soundActive)}
+                title={soundActive ? 'Silenciar bip do scanner' : 'Ativar som'}
+                className="p-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-emerald-400 transition border border-zinc-700/80"
+                aria-label="Alternar som do supermercado"
+              >
+                {soundActive ? <Volume2 className="w-4 h-4 text-emerald-400" /> : <VolumeX className="w-4 h-4 text-zinc-500" />}
+              </button>
+
               <select
                 value={activeListId}
                 onChange={(e) => {
@@ -379,7 +354,7 @@ export default function App() {
                     setActiveListId(e.target.value);
                   }
                 }}
-                className="bg-zinc-800 border border-zinc-700/80 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-zinc-200 focus:outline-none focus:border-emerald-500 max-w-[140px] truncate"
+                className="bg-zinc-800 border border-zinc-700/80 rounded-xl px-2.5 py-2 text-xs font-semibold text-zinc-200 focus:outline-none focus:border-emerald-500 max-w-[140px] sm:max-w-[180px] truncate"
               >
                 {lists.map((l) => (
                   <option key={l.id} value={l.id}>
@@ -393,7 +368,7 @@ export default function App() {
                 onClick={() => setIsNewListOpen(true)}
                 title="Criar nova lista"
                 aria-label="Criar nova lista de compras"
-                className="w-8 h-8 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 flex items-center justify-center transition border border-zinc-700/80"
+                className="w-8 h-8 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 flex items-center justify-center transition border border-zinc-700/80 shrink-0"
               >
                 <ListPlus className="w-4 h-4" />
               </button>
@@ -407,7 +382,7 @@ export default function App() {
                 <span className="text-[10px] text-zinc-400 font-medium uppercase tracking-wider block">
                   Total no Carrinho
                 </span>
-                <div className="text-xl font-black text-emerald-400 tracking-tight">
+                <div className="text-xl sm:text-2xl font-black text-emerald-400 tracking-tight">
                   {formatCurrency(totals.totalInCart)}
                 </div>
               </div>
@@ -415,7 +390,7 @@ export default function App() {
               <div className="text-right">
                 <button
                   onClick={() => setIsBudgetOpen(true)}
-                  className="group flex items-center gap-1 text-[10px] font-semibold text-zinc-400 hover:text-emerald-400 transition"
+                  className="group flex items-center gap-1 text-[11px] font-semibold text-zinc-400 hover:text-emerald-400 transition"
                 >
                   <span>Teto: {formatCurrency(activeList.budget)}</span>
                   <Edit2 className="w-3 h-3 group-hover:scale-110 transition" />
@@ -454,92 +429,90 @@ export default function App() {
               <span>Previsto: {formatCurrency(totals.totalEstimatedFinal)}</span>
             </div>
           </div>
-        </header>
 
-        {/* Action Bar & Quick Filter Chips */}
-        <div className="px-5 pt-3 pb-2 bg-zinc-900 space-y-2.5">
-          
-          {/* Search bar & Add Item Button */}
-          <div className="flex items-center gap-2">
-            <div className="relative flex-1">
-              <Search className="w-4 h-4 text-zinc-500 absolute left-3 top-2.5" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Buscar produto na lista..."
-                className="w-full pl-9 pr-3 py-2 bg-zinc-800/90 border border-zinc-700/80 rounded-xl text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-emerald-500"
-              />
+          {/* Search Bar & Action Buttons */}
+          <div className="mt-3 space-y-2">
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1">
+                <Search className="w-4 h-4 text-zinc-500 absolute left-3 top-2.5" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Buscar produto na lista..."
+                  className="w-full pl-9 pr-3 py-2 bg-zinc-800/90 border border-zinc-700/80 rounded-xl text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+
+              <button
+                onClick={() => {
+                  setEditingItem(null);
+                  setIsItemFormOpen(true);
+                }}
+                aria-label="Adicionar item manualmente à lista"
+                className="px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition active:scale-95 shrink-0"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Novo Item</span>
+              </button>
             </div>
 
-            <button
-              onClick={() => {
-                setEditingItem(null);
-                setIsItemFormOpen(true);
-              }}
-              aria-label="Adicionar item manualmente à lista"
-              className="px-3 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white text-xs font-bold flex items-center gap-1 shadow-sm transition active:scale-95 shrink-0"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Novo</span>
-            </button>
-          </div>
-
-          {/* Status Tabs: Todos | A Comprar | No Carrinho */}
-          <div className="flex bg-zinc-950 p-1 rounded-xl border border-zinc-800 text-xs">
-            <button
-              onClick={() => setStatusFilter('all')}
-              className={`flex-1 py-1.5 rounded-lg font-medium transition text-center ${
-                statusFilter === 'all'
-                  ? 'bg-zinc-800 text-white font-bold shadow-sm'
-                  : 'text-zinc-400 hover:text-white'
-              }`}
-            >
-              Todos ({activeList.items.length})
-            </button>
-            <button
-              onClick={() => setStatusFilter('pending')}
-              className={`flex-1 py-1.5 rounded-lg font-medium transition text-center ${
-                statusFilter === 'pending'
-                  ? 'bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30'
-                  : 'text-zinc-400 hover:text-white'
-              }`}
-            >
-              A Comprar ({activeList.items.length - totals.itemsInCartCount})
-            </button>
-            <button
-              onClick={() => setStatusFilter('inCart')}
-              className={`flex-1 py-1.5 rounded-lg font-medium transition text-center ${
-                statusFilter === 'inCart'
-                  ? 'bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30'
-                  : 'text-zinc-400 hover:text-white'
-              }`}
-            >
-              No Carrinho ({totals.itemsInCartCount})
-            </button>
-          </div>
-
-          {/* Horizontal Category Carousel */}
-          <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none text-[11px]">
-            {CATEGORIES.map((cat) => (
+            {/* Status Tabs: Todos | A Comprar | No Carrinho */}
+            <div className="flex bg-zinc-950 p-1 rounded-xl border border-zinc-800 text-xs">
               <button
-                key={cat}
-                onClick={() => setCategoryFilter(cat)}
-                className={`px-3 py-1 rounded-full whitespace-nowrap font-medium transition-colors shrink-0 ${
-                  categoryFilter === cat
-                    ? 'bg-emerald-500 text-white font-bold'
-                    : 'bg-zinc-800/80 text-zinc-400 hover:text-zinc-200 border border-zinc-700/40'
+                onClick={() => setStatusFilter('all')}
+                className={`flex-1 py-1.5 rounded-lg font-medium transition text-center ${
+                  statusFilter === 'all'
+                    ? 'bg-zinc-800 text-white font-bold shadow-sm'
+                    : 'text-zinc-400 hover:text-white'
                 }`}
               >
-                {cat}
+                Todos ({activeList.items.length})
               </button>
-            ))}
+              <button
+                onClick={() => setStatusFilter('pending')}
+                className={`flex-1 py-1.5 rounded-lg font-medium transition text-center ${
+                  statusFilter === 'pending'
+                    ? 'bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30'
+                    : 'text-zinc-400 hover:text-white'
+                }`}
+              >
+                A Comprar ({activeList.items.length - totals.itemsInCartCount})
+              </button>
+              <button
+                onClick={() => setStatusFilter('inCart')}
+                className={`flex-1 py-1.5 rounded-lg font-medium transition text-center ${
+                  statusFilter === 'inCart'
+                    ? 'bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30'
+                    : 'text-zinc-400 hover:text-white'
+                }`}
+              >
+                No Carrinho ({totals.itemsInCartCount})
+              </button>
+            </div>
+
+            {/* Horizontal Category Carousel */}
+            <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none text-[11px]">
+              {CATEGORIES.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setCategoryFilter(cat)}
+                  className={`px-3 py-1 rounded-full whitespace-nowrap font-medium transition-colors shrink-0 ${
+                    categoryFilter === cat
+                      ? 'bg-emerald-500 text-white font-bold'
+                      : 'bg-zinc-800/80 text-zinc-400 hover:text-zinc-200 border border-zinc-700/40'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
           </div>
-
         </div>
+      </header>
 
-        {/* Main List of Shopping Items */}
-        <main className="flex-1 px-4 py-2 overflow-y-auto space-y-2 pb-28">
+      {/* Main List of Shopping Items */}
+      <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-4 space-y-2.5 pb-32">
           {filteredItems.length === 0 ? (
             <div className="py-14 text-center px-4">
               <div className="w-14 h-14 rounded-full bg-zinc-800 text-zinc-500 flex items-center justify-center mx-auto mb-3">
@@ -695,17 +668,18 @@ export default function App() {
               );
             })
           )}
-        </main>
-
-        {/* Mobile Bottom Dock */}
-        <nav
-          aria-label="Menu principal"
-          className="shrink-0 bg-zinc-950/95 backdrop-blur-md border-t border-zinc-800 px-4 py-2.5 z-40 flex items-center justify-around shadow-2xl"
-        >
+      </main>
+ 
+      {/* Mobile-First Bottom Navigation Bar - Fixed to Browser Bottom */}
+      <nav
+        aria-label="Menu principal"
+        className="fixed bottom-0 inset-x-0 z-40 bg-zinc-950/95 backdrop-blur-md border-t border-zinc-800/90 py-2 px-4 shadow-2xl"
+      >
+        <div className="max-w-md mx-auto flex items-center justify-around relative">
           {/* List Tab */}
           <button
             onClick={() => setStatusFilter('all')}
-            className={`flex flex-col items-center gap-1 text-[10px] font-semibold transition ${
+            className={`flex flex-col items-center gap-1 text-[11px] font-semibold transition ${
               statusFilter === 'all' ? 'text-emerald-400' : 'text-zinc-400 hover:text-white'
             }`}
           >
@@ -714,17 +688,17 @@ export default function App() {
           </button>
 
           {/* Central Camera Scanner Prominent Button */}
-          <div className="relative -top-4">
+          <div className="relative -top-5">
             <button
               onClick={() => setIsScannerOpen(true)}
               aria-label="Abrir leitor de preços via câmera"
-              className="group relative w-15 h-15 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-400 text-white flex items-center justify-center shadow-lg shadow-emerald-500/40 border-4 border-zinc-900 transition-transform active:scale-90 hover:scale-105"
+              className="group relative w-16 h-16 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-400 text-white flex items-center justify-center shadow-lg shadow-emerald-500/40 border-4 border-zinc-950 transition-transform active:scale-90 hover:scale-105"
             >
               <Camera className="w-7 h-7" />
               {/* Pulsing ring animation */}
               <span className="absolute -inset-1 rounded-full border-2 border-emerald-400/50 animate-ping pointer-events-none" />
             </button>
-            <span className="block text-center text-[10px] font-extrabold text-emerald-400 mt-1">
+            <span className="block text-center text-[10px] font-extrabold text-emerald-400 mt-0.5">
               LER PREÇO
             </span>
           </div>
@@ -732,7 +706,7 @@ export default function App() {
           {/* Comparator Tool */}
           <button
             onClick={() => setIsComparatorOpen(true)}
-            className="flex flex-col items-center gap-1 text-[10px] font-semibold text-zinc-400 hover:text-white transition"
+            className="flex flex-col items-center gap-1 text-[11px] font-semibold text-zinc-400 hover:text-white transition"
           >
             <Scale className="w-5 h-5 text-amber-400" />
             <span>Comparar</span>
@@ -741,14 +715,13 @@ export default function App() {
           {/* Cupom / Carrinho Receipt */}
           <button
             onClick={() => setIsReceiptOpen(true)}
-            className="flex flex-col items-center gap-1 text-[10px] font-semibold text-zinc-400 hover:text-white transition"
+            className="flex flex-col items-center gap-1 text-[11px] font-semibold text-zinc-400 hover:text-white transition"
           >
             <Receipt className="w-5 h-5 text-blue-400" />
             <span>Cupom</span>
           </button>
-        </nav>
-
-      </div>
+        </div>
+      </nav>
 
       {/* Camera Price Scanner Modal */}
       <CameraScannerModal
