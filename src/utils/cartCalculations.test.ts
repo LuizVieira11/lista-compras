@@ -151,3 +151,51 @@ test('comparePackagePrices correctly calculates unit price economy', () => {
   assert.equal(comp.pricePerStandardB, 32);
   assert.equal(comp.savingsPercentage, 20); // (40-32)/40 = 20% savings
 });
+
+test('generateCSV outputs valid Brazilian formatted semicolon CSV with BOM', async () => {
+  const { generateCSV } = await import('./exportUtils');
+  const dummyList = {
+    id: 'l1',
+    name: 'Feira Semanal',
+    icon: '🛒',
+    budget: 100,
+    createdAt: '2026-10-31',
+    items: [
+      {
+        id: '1',
+        name: 'Arroz 5kg',
+        category: 'Mercearia' as const,
+        quantity: 2,
+        unit: 'pacote' as const,
+        estimatedPrice: 25.5,
+        actualPrice: 24.9,
+        inCart: true,
+      },
+    ],
+  };
+
+  const csv = generateCSV(dummyList);
+  assert.ok(csv.startsWith('\uFEFF')); // BOM
+  assert.ok(csv.includes('Produto;Categoria;Quantidade;Unidade'));
+  assert.ok(csv.includes('"Arroz 5kg";"Mercearia";2;"pacote"'));
+  assert.ok(csv.includes('24,90'));
+  assert.ok(csv.includes('No Carrinho'));
+});
+
+test('toUrlSafeBase64 and fromUrlSafeBase64 correctly encode and decode UTF-8 JSON', async () => {
+  const { toUrlSafeBase64, fromUrlSafeBase64 } = await import('./exportUtils');
+  const payload = JSON.stringify({
+    name: 'Churrasco com Picanha & Cerveja',
+    budget: 350.5,
+    items: [{ name: 'Feijão Carioca', price: 8.99 }],
+  });
+
+  const encoded = toUrlSafeBase64(payload);
+  // Ensure no +, /, or = characters that can corrupt URLs
+  assert.ok(!encoded.includes('+'));
+  assert.ok(!encoded.includes('/'));
+  assert.ok(!encoded.includes('='));
+
+  const decoded = fromUrlSafeBase64(encoded);
+  assert.equal(decoded, payload);
+});

@@ -25,7 +25,8 @@ import {
   AlertCircle,
   Tag,
   Check,
-  Download
+  Download,
+  Share2
 } from 'lucide-react';
 import {
   ShoppingItem,
@@ -41,6 +42,9 @@ import { ReceiptSummaryModal } from './components/ReceiptSummaryModal';
 import { BudgetModal } from './components/BudgetModal';
 import { PWAInstallModal } from './components/PWAInstallModal';
 import { OfflineIndicator } from './components/OfflineIndicator';
+import { ShareExportModal } from './components/ShareExportModal';
+import { ImportSharedListModal } from './components/ImportSharedListModal';
+import { parseSharedListFromURL } from './utils/exportUtils';
 import { usePWAInstall } from './hooks/usePWAInstall';
 import { sounds } from './utils/audioFeedback';
 
@@ -72,10 +76,14 @@ export default function App() {
   const [isComparatorOpen, setIsComparatorOpen] = useState(false);
   const [isReceiptOpen, setIsReceiptOpen] = useState(false);
   const [isBudgetOpen, setIsBudgetOpen] = useState(false);
-   const [isNewListOpen, setIsNewListOpen] = useState(false);
+  const [isNewListOpen, setIsNewListOpen] = useState(false);
   const [newListName, setNewListName] = useState('');
   const [soundActive, setSoundActive] = useState(true);
   const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [sharedListToImport, setSharedListToImport] = useState<ShoppingList | null>(() => {
+    return parseSharedListFromURL();
+  });
   const { isInstallable, isInstalled, install } = usePWAInstall();
 
   // Filters & search
@@ -312,6 +320,17 @@ export default function App() {
     sounds.playSuccessChime();
   };
 
+  // Confirm import of shared list from URL
+  const handleConfirmImport = (importedList: ShoppingList) => {
+    setLists((prev) => [importedList, ...prev]);
+    setActiveListId(importedList.id);
+    setSharedListToImport(null);
+    if (typeof window !== 'undefined') {
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+    sounds.playSuccessChime();
+  };
+
   // Budget progress percentage
   const budgetProgress = activeList.budget > 0
     ? Math.min(100, Math.round((totals.totalInCart / activeList.budget) * 100))
@@ -323,25 +342,26 @@ export default function App() {
       {/* Sticky Top App Header */}
       <header className="sticky top-0 z-30 bg-zinc-900/95 backdrop-blur-md border-b border-zinc-800 shadow-md">
         <div className="max-w-2xl mx-auto w-full px-4 pt-3 pb-3">
-          {/* Top Bar with Brand, Sound Toggle, and Shopping List Selector */}
-          <div className="flex items-center justify-between gap-3 mb-2.5">
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-white shadow-md shadow-emerald-500/20">
-                <ShoppingBag className="w-5 h-5" />
+          {/* Row 1: Brand & Quick Utility Actions */}
+          <div className="flex items-center justify-between gap-2 mb-2.5">
+            {/* Brand Logo & Name */}
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 shrink-0">
+                <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
-              <div>
-                <h1 className="text-base font-black tracking-tight text-white flex items-center gap-1.5">
+              <div className="min-w-0">
+                <h1 className="text-sm sm:text-base font-black tracking-tight text-white flex items-center gap-1.5 leading-none">
                   SuperLista
                   <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-emerald-500 text-white font-black uppercase">
                     PRO
                   </span>
                 </h1>
-                <p className="text-[11px] text-zinc-400">Leitor de Preços com Câmera</p>
+                <p className="text-[10px] text-zinc-400 truncate mt-0.5">Leitor de Preços com Câmera</p>
               </div>
             </div>
 
-            {/* List Selector & App Controls */}
-            <div className="flex items-center gap-2">
+            {/* Quick Utilities (Baixar App & Som) */}
+            <div className="flex items-center gap-1.5 shrink-0">
               {/* Install PWA Button */}
               {!isInstalled && (
                 <button
@@ -354,22 +374,28 @@ export default function App() {
                   }}
                   title="Baixar aplicativo no celular ou computador"
                   aria-label="Baixar e instalar aplicativo"
-                  className="px-2.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition active:scale-95"
+                  className="px-2.5 py-1.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/40 font-bold text-xs flex items-center gap-1.5 shadow-sm transition active:scale-95"
                 >
                   <Download className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Baixar App</span>
+                  <span className="text-[11px] font-bold">Baixar</span>
                 </button>
               )}
 
+              {/* Sound Toggle */}
               <button
                 onClick={() => setSoundActive(!soundActive)}
                 title={soundActive ? 'Silenciar bip do scanner' : 'Ativar som'}
-                className="p-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-emerald-400 transition border border-zinc-700/80"
+                className="w-8 h-8 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-emerald-400 transition border border-zinc-700/80 flex items-center justify-center"
                 aria-label="Alternar som do supermercado"
               >
                 {soundActive ? <Volume2 className="w-4 h-4 text-emerald-400" /> : <VolumeX className="w-4 h-4 text-zinc-500" />}
               </button>
+            </div>
+          </div>
 
+          {/* Row 2: Dedicated List Selector & Creation Bar */}
+          <div className="flex items-center gap-2 mb-3 bg-zinc-950/70 p-1.5 rounded-2xl border border-zinc-800">
+            <div className="relative flex-1 min-w-0">
               <select
                 value={activeListId}
                 onChange={(e) => {
@@ -379,25 +405,39 @@ export default function App() {
                     setActiveListId(e.target.value);
                   }
                 }}
-                className="bg-zinc-800 border border-zinc-700/80 rounded-xl px-2.5 py-2 text-xs font-semibold text-zinc-200 focus:outline-none focus:border-emerald-500 max-w-[130px] sm:max-w-[170px] truncate"
+                aria-label="Selecionar lista de compras ativa"
+                className="w-full bg-zinc-900 border border-zinc-700/70 rounded-xl px-3 py-2 text-xs font-bold text-zinc-100 focus:outline-none focus:border-emerald-500 appearance-none pr-8 cursor-pointer truncate"
               >
                 {lists.map((l) => (
                   <option key={l.id} value={l.id}>
                     {l.icon} {l.name}
                   </option>
                 ))}
-                <option value="NEW">+ Nova Lista...</option>
+                <option value="NEW">+ Criar Nova Lista...</option>
               </select>
-
-              <button
-                onClick={() => setIsNewListOpen(true)}
-                title="Criar nova lista"
-                aria-label="Criar nova lista de compras"
-                className="w-8 h-8 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 flex items-center justify-center transition border border-zinc-700/80 shrink-0"
-              >
-                <ListPlus className="w-4 h-4" />
-              </button>
+              <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-400">
+                <ChevronDown className="w-3.5 h-3.5" />
+              </div>
             </div>
+
+            <button
+              onClick={() => setIsNewListOpen(true)}
+              title="Criar nova lista"
+              aria-label="Criar nova lista de compras"
+              className="px-3 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-emerald-400 hover:text-emerald-300 font-bold text-xs flex items-center gap-1.5 transition border border-zinc-700/80 shrink-0 active:scale-95"
+            >
+              <ListPlus className="w-3.5 h-3.5" />
+              <span>Nova</span>
+            </button>
+
+            <button
+              onClick={() => setIsShareModalOpen(true)}
+              title="Compartilhar ou exportar lista para CSV"
+              aria-label="Compartilhar ou exportar lista"
+              className="p-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-emerald-400 font-bold text-xs flex items-center justify-center transition border border-zinc-700/80 shrink-0 active:scale-95"
+            >
+              <Share2 className="w-4 h-4 text-emerald-400" />
+            </button>
           </div>
 
           {/* Budget & Cart Metric Card */}
@@ -839,6 +879,25 @@ export default function App() {
       <PWAInstallModal
         isOpen={isInstallModalOpen}
         onClose={() => setIsInstallModalOpen(false)}
+      />
+
+      {/* Share & Export CSV Modal */}
+      <ShareExportModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        list={activeList}
+      />
+
+      {/* Import Shared List Modal (URL query) */}
+      <ImportSharedListModal
+        sharedList={sharedListToImport}
+        onConfirm={handleConfirmImport}
+        onCancel={() => {
+          setSharedListToImport(null);
+          if (typeof window !== 'undefined') {
+            window.history.replaceState({}, document.title, window.location.pathname);
+          }
+        }}
       />
 
       {/* Connectivity Offline Indicator */}
