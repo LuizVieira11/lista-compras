@@ -1,0 +1,8 @@
+{
+  "name": "SuperLista - Leitor de Preços",
+  "description": "Aplicativo mobile inteligente para lista de compras no supermercado com leitor de etiquetas de preço em tempo real via câmera.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
