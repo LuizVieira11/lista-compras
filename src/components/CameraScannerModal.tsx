@@ -20,7 +20,14 @@ import {
   ExternalLink,
   Info
 } from 'lucide-react';
-import { ShoppingItem, formatCurrency, findBestMatchingItem, parsePrice } from '../utils/cartCalculations';
+import {
+  ShoppingItem,
+  formatCurrency,
+  findBestMatchingItem,
+  parsePrice,
+  formatFinancialMask,
+  parseFinancialMask
+} from '../utils/cartCalculations';
 import { ScannedPriceResult, DemoPriceTag } from '../types';
 import { DEMO_PRICE_TAGS } from '../data/initialData';
 import { generatePriceTagCanvas } from '../utils/generatePriceTagImage';
@@ -155,7 +162,7 @@ export const CameraScannerModal: React.FC<CameraScannerModalProps> = ({
 
       setScanResult(result);
       setEditableName(result.productName);
-      setEditablePrice(result.price ? result.price.toFixed(2).replace('.', ',') : '0,00');
+      setEditablePrice(formatFinancialMask(result.price || 0));
       setCapturedImagePreview(base64Image);
 
       // Play audio beep
@@ -174,7 +181,7 @@ export const CameraScannerModal: React.FC<CameraScannerModalProps> = ({
       setMatchedItem(matched);
       setScanResult(fallbackResult);
       setEditableName(fallbackResult.productName);
-      setEditablePrice(fallbackResult.price.toFixed(2).replace('.', ','));
+      setEditablePrice(formatFinancialMask(fallbackResult.price));
       setCapturedImagePreview(base64Image);
       sounds.playScanBeep();
     } finally {
@@ -231,7 +238,7 @@ export const CameraScannerModal: React.FC<CameraScannerModalProps> = ({
    */
   const handleConfirm = () => {
     if (!scanResult) return;
-    const parsedPrice = parsePrice(editablePrice);
+    const parsedPrice = parseFinancialMask(editablePrice);
 
     const finalResult: ScannedPriceResult = {
       ...scanResult,
@@ -567,12 +574,14 @@ export const CameraScannerModal: React.FC<CameraScannerModalProps> = ({
                     <span className="absolute left-3 top-2 text-xs text-zinc-400 font-bold">R$</span>
                     <input
                       type="text"
+                      inputMode="numeric"
                       value={editablePrice}
-                      onChange={(e) => setEditablePrice(e.target.value)}
+                      onChange={(e) => setEditablePrice(formatFinancialMask(e.target.value))}
                       className="w-full pl-9 pr-3 py-2 bg-zinc-800 border border-zinc-700 rounded-xl text-xs text-emerald-400 font-bold focus:outline-none focus:border-emerald-500"
                       placeholder="0,00"
                     />
                   </div>
+                  <span className="text-[10px] text-zinc-500 mt-0.5 block">Digite apenas números (ex: 999 = R$ 9,99)</span>
                 </div>
               </div>
 

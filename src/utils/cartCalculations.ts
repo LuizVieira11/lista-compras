@@ -44,6 +44,43 @@ export function formatCurrency(value: number): string {
 }
 
 /**
+ * Formats user input into a financial currency mask (0,00).
+ * Typing "9" -> "0,09", "99" -> "0,99", "999" -> "9,99", "2500" -> "25,00".
+ * Deleting removes the last digit.
+ */
+export function formatFinancialMask(input: string | number): string {
+  if (typeof input === 'number') {
+    if (isNaN(input) || input <= 0) return '0,00';
+    return input.toFixed(2).replace('.', ',');
+  }
+
+  if (!input || typeof input !== 'string') return '0,00';
+
+  // Extract all numeric digits
+  const digits = input.replace(/\D/g, '');
+  if (!digits || digits === '0') return '0,00';
+
+  const cents = parseInt(digits, 10);
+  if (isNaN(cents) || cents === 0) return '0,00';
+
+  const integerPart = Math.floor(cents / 100);
+  const decimalPart = String(cents % 100).padStart(2, '0');
+
+  return `${integerPart},${decimalPart}`;
+}
+
+/**
+ * Parses financial mask (e.g. "9,99") to floating number (9.99)
+ */
+export function parseFinancialMask(masked: string | number): number {
+  if (typeof masked === 'number') return isNaN(masked) ? 0 : Math.max(0, masked);
+  if (!masked || typeof masked !== 'string') return 0;
+  const digits = masked.replace(/\D/g, '');
+  if (!digits) return 0;
+  return parseInt(digits, 10) / 100;
+}
+
+/**
  * Parses a price string into a float, supporting Brazilian (comma) and decimal (dot) formats
  */
 export function parsePrice(input: string | number): number {

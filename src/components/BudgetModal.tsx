@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { X, DollarSign, Check } from 'lucide-react';
-import { parsePrice } from '../utils/cartCalculations';
+import { formatFinancialMask, parseFinancialMask } from '../utils/cartCalculations';
 
 interface BudgetModalProps {
   isOpen: boolean;
@@ -20,17 +20,17 @@ export const BudgetModal: React.FC<BudgetModalProps> = ({
   currentBudget,
   onSave,
 }) => {
-  const [budgetInput, setBudgetInput] = useState('');
+  const [budgetInput, setBudgetInput] = useState('0,00');
 
   useEffect(() => {
     if (isOpen) {
-      setBudgetInput(currentBudget ? currentBudget.toFixed(2).replace('.', ',') : '');
+      setBudgetInput(formatFinancialMask(currentBudget || 0));
     }
   }, [isOpen, currentBudget]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const parsed = parsePrice(budgetInput);
+    const parsed = parseFinancialMask(budgetInput);
     onSave(parsed);
     onClose();
   };
@@ -70,20 +70,22 @@ export const BudgetModal: React.FC<BudgetModalProps> = ({
             <span className="absolute left-3.5 top-3 text-sm text-zinc-400 font-bold">R$</span>
             <input
               type="text"
+              inputMode="numeric"
               autoFocus
               value={budgetInput}
-              onChange={(e) => setBudgetInput(e.target.value)}
+              onChange={(e) => setBudgetInput(formatFinancialMask(e.target.value))}
               placeholder="0,00"
               className="w-full pl-10 pr-3.5 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-lg font-bold text-emerald-400 focus:outline-none focus:border-emerald-500"
             />
           </div>
+          <span className="text-[10px] text-zinc-500 block">Digite apenas números (ex: 999 = R$ 9,99)</span>
 
           <div className="flex gap-2">
             {[100, 200, 350, 500].map((quick) => (
               <button
                 key={quick}
                 type="button"
-                onClick={() => setBudgetInput(quick.toFixed(2).replace('.', ','))}
+                onClick={() => setBudgetInput(formatFinancialMask(quick))}
                 className="flex-1 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-semibold border border-zinc-700/60"
               >
                 R$ {quick}

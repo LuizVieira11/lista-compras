@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { X, Check, ShoppingBag, Plus, Tag } from 'lucide-react';
-import { ShoppingItem, parsePrice } from '../utils/cartCalculations';
+import { ShoppingItem, formatFinancialMask, parseFinancialMask } from '../utils/cartCalculations';
 import { CATEGORIES } from '../data/initialData';
 import { Category } from '../types';
 
@@ -40,7 +40,7 @@ export const ItemFormModal: React.FC<ItemFormModalProps> = ({
   const [category, setCategory] = useState<Category>('Mercearia');
   const [quantity, setQuantity] = useState('1');
   const [unit, setUnit] = useState<ShoppingItem['unit']>('un');
-  const [estimatedPrice, setEstimatedPrice] = useState('');
+  const [estimatedPrice, setEstimatedPrice] = useState('0,00');
   const [notes, setNotes] = useState('');
 
   useEffect(() => {
@@ -49,16 +49,14 @@ export const ItemFormModal: React.FC<ItemFormModalProps> = ({
       setCategory((initialItem.category as Category) || 'Mercearia');
       setQuantity(String(initialItem.quantity || 1));
       setUnit(initialItem.unit || 'un');
-      setEstimatedPrice(
-        initialItem.estimatedPrice ? initialItem.estimatedPrice.toFixed(2).replace('.', ',') : ''
-      );
+      setEstimatedPrice(formatFinancialMask(initialItem.estimatedPrice || 0));
       setNotes(initialItem.notes || '');
     } else {
       setName('');
       setCategory('Mercearia');
       setQuantity('1');
       setUnit('un');
-      setEstimatedPrice('');
+      setEstimatedPrice('0,00');
       setNotes('');
     }
   }, [initialItem, isOpen]);
@@ -67,8 +65,8 @@ export const ItemFormModal: React.FC<ItemFormModalProps> = ({
     e.preventDefault();
     if (!name.trim()) return;
 
-    const parsedQty = parseFloat(quantity.replace(',', '.')) || 1;
-    const parsedPrice = parsePrice(estimatedPrice);
+    const parsedQty = parseFloat(quantity.replace(/[^0-9.,]/g, '').replace(',', '.')) || 1;
+    const parsedPrice = parseFinancialMask(estimatedPrice);
 
     onSave({
       name: name.trim(),
@@ -85,7 +83,7 @@ export const ItemFormModal: React.FC<ItemFormModalProps> = ({
   const applySuggestion = (sug: typeof COMMON_SUGGESTIONS[0]) => {
     setName(sug.name);
     setCategory(sug.category as Category);
-    setEstimatedPrice(sug.price.toFixed(2).replace('.', ','));
+    setEstimatedPrice(formatFinancialMask(sug.price));
     setUnit(sug.unit as ShoppingItem['unit']);
   };
 
@@ -206,10 +204,11 @@ export const ItemFormModal: React.FC<ItemFormModalProps> = ({
               </label>
               <input
                 type="text"
+                inputMode="decimal"
                 value={quantity}
-                onChange={(e) => setQuantity(e.target.value)}
+                onChange={(e) => setQuantity(e.target.value.replace(/[^0-9.,]/g, ''))}
                 placeholder="1"
-                className="w-full px-3.5 py-2.5 bg-zinc-800/90 border border-zinc-700 rounded-xl text-sm text-white focus:outline-none focus:border-emerald-500"
+                className="w-full px-3.5 py-2.5 bg-zinc-800/90 border border-zinc-700 rounded-xl text-sm text-white focus:outline-none focus:border-emerald-500 font-mono"
               />
             </div>
 
@@ -221,12 +220,14 @@ export const ItemFormModal: React.FC<ItemFormModalProps> = ({
                 <span className="absolute left-3 top-2.5 text-xs text-zinc-400 font-bold">R$</span>
                 <input
                   type="text"
+                  inputMode="numeric"
                   value={estimatedPrice}
-                  onChange={(e) => setEstimatedPrice(e.target.value)}
+                  onChange={(e) => setEstimatedPrice(formatFinancialMask(e.target.value))}
                   placeholder="0,00"
-                  className="w-full pl-9 pr-3 py-2.5 bg-zinc-800/90 border border-zinc-700 rounded-xl text-sm text-white focus:outline-none focus:border-emerald-500"
+                  className="w-full pl-9 pr-3 py-2.5 bg-zinc-800/90 border border-zinc-700 rounded-xl text-sm text-white focus:outline-none focus:border-emerald-500 font-bold"
                 />
               </div>
+              <span className="text-[10px] text-zinc-500 mt-1 block">Digite "999" para R$ 9,99</span>
             </div>
           </div>
 

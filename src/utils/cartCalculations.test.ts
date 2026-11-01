@@ -199,3 +199,33 @@ test('toUrlSafeBase64 and fromUrlSafeBase64 correctly encode and decode UTF-8 JS
   const decoded = fromUrlSafeBase64(encoded);
   assert.equal(decoded, payload);
 });
+
+test('formatFinancialMask formats keystrokes as right-to-left currency mask 0,00', async () => {
+  const { formatFinancialMask, parseFinancialMask } = await import('./cartCalculations');
+
+  // Typing 9 -> 0,09
+  assert.equal(formatFinancialMask('9'), '0,09');
+  // Typing 99 -> 0,99
+  assert.equal(formatFinancialMask('0,099'), '0,99');
+  // Typing 999 -> 9,99
+  assert.equal(formatFinancialMask('0,999'), '9,99');
+  // Typing 2500 -> 25,00
+  assert.equal(formatFinancialMask('2500'), '25,00');
+
+  // Backspace from 9,99 -> 0,99
+  assert.equal(formatFinancialMask('9,9'), '0,99');
+  // Backspace from 0,99 -> 0,09
+  assert.equal(formatFinancialMask('0,9'), '0,09');
+  // Backspace from 0,09 -> 0,00
+  assert.equal(formatFinancialMask('0,'), '0,00');
+
+  // Numeric input formatting
+  assert.equal(formatFinancialMask(14.9), '14,90');
+  assert.equal(formatFinancialMask(0), '0,00');
+
+  // Parsing
+  assert.equal(parseFinancialMask('9,99'), 9.99);
+  assert.equal(parseFinancialMask('0,09'), 0.09);
+  assert.equal(parseFinancialMask('25,00'), 25.0);
+  assert.equal(parseFinancialMask('0,00'), 0);
+});

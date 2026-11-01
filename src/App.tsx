@@ -74,6 +74,7 @@ export default function App() {
   const [isItemFormOpen, setIsItemFormOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<ShoppingItem | null>(null);
   const [isComparatorOpen, setIsComparatorOpen] = useState(false);
+  const [comparatorTargetItem, setComparatorTargetItem] = useState<ShoppingItem | null>(null);
   const [isReceiptOpen, setIsReceiptOpen] = useState(false);
   const [isBudgetOpen, setIsBudgetOpen] = useState(false);
   const [isNewListOpen, setIsNewListOpen] = useState(false);
@@ -316,6 +317,33 @@ export default function App() {
     };
     setLists((prev) =>
       prev.map((l) => (l.id === activeList.id ? { ...l, items: [newItem, ...l.items] } : l))
+    );
+    sounds.playSuccessChime();
+  };
+
+  // Open comparator for a specific item to edit it in place
+  const handleOpenComparatorForItem = (item: ShoppingItem) => {
+    setComparatorTargetItem(item);
+    setIsComparatorOpen(true);
+  };
+
+  // Update an existing item from comparator verdict
+  const handleUpdateItemFromComparator = (itemId: string, newPrice: number, updatedPackageName?: string) => {
+    setLists((prev) =>
+      prev.map((l) => {
+        if (l.id !== activeList.id) return l;
+        return {
+          ...l,
+          items: l.items.map((item) => {
+            if (item.id !== itemId) return item;
+            return {
+              ...item,
+              name: updatedPackageName || item.name,
+              actualPrice: newPrice,
+            };
+          }),
+        };
+      })
     );
     sounds.playSuccessChime();
   };
@@ -708,7 +736,16 @@ export default function App() {
                       )}
 
                       {/* Quick Item Buttons */}
-                      <div className="flex items-center gap-1 mt-2.5">
+                      <div className="flex items-center gap-1.5 mt-2.5">
+                        <button
+                          onClick={() => handleOpenComparatorForItem(item)}
+                          aria-label={`Comparar embalagens de ${item.name}`}
+                          title="Comparar tamanhos e preços desta embalagem"
+                          className="px-2 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 hover:text-amber-200 border border-amber-500/30 transition text-[11px] font-bold flex items-center gap-1 active:scale-95"
+                        >
+                          <Scale className="w-3 h-3 text-amber-400" />
+                          <span>Comparar</span>
+                        </button>
                         <button
                           onClick={() => {
                             setEditingItem(item);
@@ -770,7 +807,10 @@ export default function App() {
 
           {/* Comparator Tool */}
           <button
-            onClick={() => setIsComparatorOpen(true)}
+            onClick={() => {
+              setComparatorTargetItem(null);
+              setIsComparatorOpen(true);
+            }}
             className="flex flex-col items-center gap-1 text-[11px] font-semibold text-zinc-400 hover:text-white transition"
           >
             <Scale className="w-5 h-5 text-amber-400" />
@@ -810,8 +850,14 @@ export default function App() {
       {/* Packaging Unit Price Comparator */}
       <PriceComparatorModal
         isOpen={isComparatorOpen}
-        onClose={() => setIsComparatorOpen(false)}
+        onClose={() => {
+          setIsComparatorOpen(false);
+          setComparatorTargetItem(null);
+        }}
+        targetItem={comparatorTargetItem}
+        items={activeList.items}
         onAddWinnerToCart={handleAddWinnerFromComparator}
+        onUpdateItem={handleUpdateItemFromComparator}
       />
 
       {/* Receipt Cupom Fiscal Modal */}
